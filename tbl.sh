@@ -47,7 +47,7 @@ tbl_fetch_col_vars() { # $1-col_var_path $2-col_nums_path $3-col_hdrs_path
 	# process its output, and write the results to files:
 	#   - column variables to $1,
 	#   - column numbers to $2,
-	#   - localized column headers to $3.
+	#   - column header labels to $3.
 	#
 	# Returns 1 on error.
 
@@ -65,11 +65,13 @@ This function must output a newline-separated list of column variable names.
 Each variable name must start with an underscore ('_') and may include only
 ASCII alphanumeric characters and underscores.
 
-The calling environment may export shell variables named by prefixing
-column variable names with 'i18n_col_', each containing the translated
-value of its column header.
+Columns are header-less. To associate labels, preset variables named 'i18n_col_'
+followed by the column name. Assign each label text starting with a namespace of
+your choice followed by a colon. The namespace and colon will be removed from
+the final label. For example: i18n_col_JOB='ns:Role' for a JOB column variable.
+Labels may be used programmatically to display headers before calling tbl_print.
 
-Refer to the file $BASH_SOURCE for more details.
+Refer to the '$BASH_SOURCE' file for more details.
 EOF
 		return 1
 	fi
@@ -87,7 +89,7 @@ EOF
 		echo $((++n)) >&$fdn
 		printf '%s\n' $v >&$fdv
 		typeset -n varname=i18n_col_$v
-		printf "%s\n" "${varname#col:}" >&$fdh
+		printf "%s\n" "${varname#*:}" >&$fdh
 		typeset +n varname
 		unset varname
 	done
